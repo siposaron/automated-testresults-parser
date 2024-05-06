@@ -6,6 +6,13 @@ declare interface ParseOptions {
   files: string[];
 }
 
+declare interface ParseFromUrlOptions {
+  type: string;
+  ignore_error_count?: boolean;
+  urls: string[];
+}
+
 export function parse(options: ParseOptions): TestResult;
+export async function parseFromUrl(options: ParseFromUrlOptions): TestResult;
 
 export namespace parser { }

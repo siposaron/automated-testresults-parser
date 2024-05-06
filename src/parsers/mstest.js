@@ -1,4 +1,4 @@
-const { getJsonFromXMLFile } = require('../helpers/helper');
+const { getJsonFromXMLFile, getJsonFromRemoteXMLFile } = require('../helpers/helper');
 const path = require('path');
 
 const TestResult = require('../models/TestResult');
@@ -222,6 +222,12 @@ function parse(file) {
   return getTestResult(json);
 }
 
+async function parseFromUrl(url) {
+  const json = await getJsonFromRemoteXMLFile(url);
+  return getTestResult(json);
+}
+
 module.exports = {
-  parse
+  parse,
+  parseFromUrl
 }

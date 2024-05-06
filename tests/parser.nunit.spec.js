@@ -4,7 +4,7 @@ const assert = require('assert');
 describe('Parser - NUnit', () => {
 
   const testDataPath = "tests/data/nunit";
-  var result;
+  let result;
 
   context('NUnit V2', () => {
 
@@ -237,6 +237,80 @@ describe('Parser - NUnit', () => {
       assert.equal(testCaseWithAttachments.attachments.length, 1);
       assert.equal(testCaseWithAttachments.attachments[0].path, "c:\\absolute\\filepath\\dummy.txt")
       assert.equal(testCaseWithAttachments.attachments[0].name, "my description")
+    });
+
+  });
+
+  context('NUnit Results V3', () => {
+    before( () => {
+      result = parse({ type: 'nunit', files: [`${testDataPath}/nunit_results_v3.xml`] });
+    });
+
+    it('Should calculate totals', () => {
+      // totals on the testresult
+      assert.equal(result.total, 6);
+      assert.equal(result.passed, 6);
+      assert.equal(result.failed, 0);
+      assert.equal(result.errors, 0); 
+
+      // compare sum of suite totals to testresult
+      assert.equal( result.suites.reduce( (total, suite) => { return total + suite.total},0), result.total);
+      assert.equal( result.suites.reduce( (total, suite) => { return total + suite.passed},0), result.passed);
+      assert.equal( result.suites.reduce( (total, suite) => { return total + suite.failed},0), result.failed);
+      assert.equal( result.suites.reduce( (total, suite) => { return total + suite.errors},0), result.errors);
+      assert.equal( result.suites.reduce( (total, suite) => { return total + suite.skipped},0), result.skipped);
+    });
+
+    it('Should have correct Status', () => {
+      // testresult status
+      assert.equal(result.status, 'PASS');
+    });
+
+    it('Should express durations in milliseconds', () => {
+      let totalDuration = result.duration;
+      let suiteDuration = result.suites[0].duration; // sample
+      let testDuration  = result.suites[0].cases[0].duration; // sample
+      assert.equal(totalDuration, 17.198937, `TestResult duration should be 17.198937 seconds (${totalDuration}`);
+      assert.equal(suiteDuration, 6.902941, `Suite duration should be 6.902941 seconds (${suiteDuration})`);
+      assert.equal(testDuration, 1.923164,  `Test duration should be 1.923164 seconds (${testDuration})`);
+    });
+
+    it('Should include fullnames for testsuites and testcases', () => {
+      assert.equal(result.suites[0].name, "MY_PROJECT_Test_Suite.CLUSTER1.Test_CLUSTER1.ID_6_TemperatureSmokeTest");
+      assert.equal(result.suites[0].cases[0].name, "MY_PROJECT_Test_Suite.CLUSTER1.Test_CLUSTER1.ID_6_TemperatureSmokeTest(-5,5.0d)")
+    });
+
+    it('Should map results correctly', () => {
+      assert.equal(result.suites.length, 2, `Number of TestSuites should be 2 (${result.suites.length}`);
+
+      // assemblies.mocktestfixture
+      assert.equal(result.suites[0].status, "PASS");
+      assert.equal(result.suites[0].cases.length, 4);
+      assert.equal(result.suites[0].cases[0].status, "PASS");
+      assert.equal(result.suites[0].cases[1].status, "PASS");
+      assert.equal(result.suites[0].cases[2].status, "PASS");
+      assert.equal(result.suites[0].cases[3].status, "PASS");
+      // TODO: SKIP, ERROR
+
+      assert.equal(result.suites[1].cases.length, 2);
+      assert.equal(result.suites[1].status, "PASS"); 
+      assert.equal(result.suites[1].cases[0].status, "PASS");
+      assert.equal(result.suites[1].cases[1].status, "PASS");
+    });
+
+    it('Should support properties defined at the Assembly level', () => {
+      const testCaseWithNoProperties = result.suites[0].cases[0].meta_data;
+      console.log(`testCaseWithNoProperties: ${JSON.stringify(testCaseWithNoProperties)}`);
+      assert.equal(testCaseWithNoProperties.has("_PID"), true);
+      assert.equal(testCaseWithNoProperties.has("_APPDOMAIN"), true);
+    });
+
+    it('Should support environment and settings defined at Test Suite level', () => {
+      const testSuiteMetadata = result?.suites[0].cases[0].meta_data;
+      assert.equal(testSuiteMetadata?.has("ImageRuntimeVersion"), true);
+      assert.equal(testSuiteMetadata?.has("ImageTargetFrameworkName"), true);
+      assert.equal(testSuiteMetadata?.has("NumberOfTestWorkers"), true);
+      assert.equal(testSuiteMetadata?.has("environment"), true);
     });
 
   });

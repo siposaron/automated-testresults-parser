@@ -1,4 +1,4 @@
-const { getJsonFromXMLFile } = require('../helpers/helper');
+const { getJsonFromXMLFile, getJsonFromRemoteXMLFile } = require('../helpers/helper');
 
 const TestResult = require('../models/TestResult');
 const TestSuite = require('../models/TestSuite');
@@ -86,6 +86,36 @@ function populateMetaData(raw, map) {
       }
     }
   }
+
+  if (raw.settings) {
+    console.log(`has settings!`);
+    const settings = raw.settings.setting;
+    for (let i = 0; i < settings.length; i++) {
+      const setting = settings[i];
+      const settingName = setting["@_name"];
+      const settingValue = setting["@_value"];
+
+      if (settingName) {
+        map.set(settingName, settingValue);
+      }
+    }
+  }
+
+  if (raw.environment) {
+    const environment = raw.environment;
+    map.set("environment", {
+      "framework-version": environment["@_framework-version"],
+      "clr-version": environment["@_clr-version"],
+      "os-version": environment["@_os-version"],
+      "platform": environment["@_platform"],
+      "cwd": environment["@_cwd"],
+      "machine-name": environment["@_machine-name"],
+      "user": environment["@_user"],
+      "user-domain": environment["@_user-domain"],
+      "culture": environment["@_culture"],
+      "os-architecture": environment["@_os-architecture"]
+    });
+  }
 }
 
 function getNestedTestCases(rawSuite) {
@@ -128,6 +158,9 @@ function getTestCases(rawSuite, parent_meta) {
       testCase.id = rawCase["@_id"] ?? "";
       testCase.name = rawCase["@_fullname"] ?? rawCase["@_name"];
       testCase.duration = rawCase["@_time"] * 1000; // in milliseconds
+      if (rawCase["@_duration"]) {
+        testCase.duration = rawCase["@_duration"];
+      }
       testCase.status = RESULT_MAP[result];
 
       // v2 : non-executed should be tests should be Ignored
@@ -178,6 +211,9 @@ function getTestSuites(rawSuites, assembly_meta) {
       suite.id = rawSuite["@_id"] ?? '';
       suite.name = rawSuite["@_fullname"] ?? rawSuite["@_name"];
       suite.duration = rawSuite["@_time"] * 1000; // in milliseconds
+      if (rawSuite["@_duration"]) {
+        suite.duration = rawSuite["@_duration"];
+      }
       suite.status = RESULT_MAP[rawSuite["@_result"]];
 
       const meta_data = new Map();
@@ -213,6 +249,10 @@ function getTestResult(json) {
 
   result.name = rawResult["@_fullname"] ?? rawResult["@_name"];
   result.duration = rawSuite["@_time"] * 1000; // in milliseconds
+  if (rawSuite["@_duration"]) {
+    result.duration = rawSuite["@_duration"];
+  }
+  result.status = RESULT_MAP[rawSuite["@_result"]];
 
   result.suites.push(...getTestSuites([rawSuite], null));
 
@@ -230,6 +270,12 @@ function parse(file) {
   return getTestResult(json);
 }
 
+async function parseFromUrl(url) {
+  const json = await getJsonFromRemoteXMLFile(url);
+  return getTestResult(json);
+}
+
 module.exports = {
-  parse
+  parse, 
+  parseFromUrl
 }

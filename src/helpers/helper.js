@@ -75,6 +75,11 @@ function getJsonFromXMLFile(filePath) {
   return configured_parser.parse(xml);
 }
 
+async function getJsonFromRemoteXMLFile(url) {
+  const xml = await fetch(url).then(response => response.text());
+  return configured_parser.parse(xml);
+}
+
 /**
  * @param {string} file_path
  */
@@ -97,5 +102,6 @@ function getMatchingFilePaths(file_path) {
 module.exports = {
   getJsonFromXMLFile,
   getMatchingFilePaths,
-  resolveFilePath
+  resolveFilePath,
+  getJsonFromRemoteXMLFile
 }

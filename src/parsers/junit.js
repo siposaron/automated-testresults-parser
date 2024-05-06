@@ -1,4 +1,4 @@
-const { getJsonFromXMLFile } = require('../helpers/helper');
+const { getJsonFromXMLFile, getJsonFromRemoteXMLFile } = require('../helpers/helper');
 
 const TestResult = require('../models/TestResult');
 const TestSuite = require('../models/TestSuite');
@@ -203,6 +203,18 @@ function parse(file, options) {
   return getTestResult(json, options);
 }
 
+/**
+ *
+ * @param {string} url
+ * @param {import('..').ParseOptions} options
+ * @returns
+ */
+async function parseFromUrl(url, options) {
+  const json = getJsonFromRemoteXMLFile(url);
+  return getTestResult(json, options);
+}
+
 module.exports = {
-  parse
+  parse,
+  parseFromUrl
 }

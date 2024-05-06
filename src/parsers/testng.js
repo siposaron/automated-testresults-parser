@@ -1,4 +1,4 @@
-const { getJsonFromXMLFile } = require('../helpers/helper');
+const { getJsonFromXMLFile, getJsonFromRemoteXMLFile } = require('../helpers/helper');
 
 const TestResult = require('../models/TestResult');
 const TestSuite = require('../models/TestSuite');
@@ -116,9 +116,7 @@ function getTestSuite(rawSuite) {
   return suite;
 }
 
-function parse(file) {
-  // TODO - loop through files
-  const json = getJsonFromXMLFile(file);
+function getTestResult(json) {
   const result = new TestResult();
   const results = json['testng-results'][0];
   result.failed = results['@_failed'];
@@ -169,7 +167,19 @@ function parse(file) {
   return result;
 }
 
+function parse(file) {
+  // TODO - loop through files
+  const json = getJsonFromXMLFile(file);
+  return getTestResult(json);
+}
+
+async function parseFromUrl(url) {
+  const json = await getJsonFromRemoteXMLFile(url);
+  return getTestResult(json);
+}
+
 
 module.exports = {
-  parse
+  parse,
+  parseFromUrl
 }

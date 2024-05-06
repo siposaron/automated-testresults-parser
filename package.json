@@ -1,7 +1,7 @@
 {
   "name": "test-results-parser",
-  "version": "0.1.14",
-  "description": "Parse test results from JUnit, TestNG, xUnit, cucumber and many more",
+  "version": "0.2.0",
+  "description": "Parse test results from JUnit, TestNG, xUnit, cucumber and many more.",
   "main": "src/index.js",
   "types": "./src/index.d.ts",
   "scripts": {
@@ -26,6 +26,12 @@
     "nUnit"
   ],
   "author": "Anudeep <asa.anudeep4@gmail.com>",
+  "contributors": [
+    {
+      "name": "Aron Sipos",
+      "email": "aron.sipos.dev@gmail.com"
+    }
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/test-results-reporter/parser/issues"

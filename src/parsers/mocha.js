@@ -1,7 +1,7 @@
 /*
 *  Parser for both Mocha Json report and Mochawesome json
 */
-const { resolveFilePath } = require('../helpers/helper');
+const { resolveFilePath, getJsonFromRemoteXMLFile } = require('../helpers/helper');
 
 const TestResult = require('../models/TestResult');
 const TestSuite = require('../models/TestSuite');
@@ -167,6 +167,12 @@ function parse(file) {
   return getTestResult(json);
 }
 
+async function parseFromUrl(url) {
+  const json = await getJsonFromRemoteXMLFile(url);
+  return getTestResult(json);
+}
+
 module.exports = {
-  parse
+  parse,
+  parseFromUrl
 }

@@ -13,6 +13,6 @@ declare class TestResult {
   suites: TestSuite[];
 }
 
-declare namespace TestResult {}
+declare namespace TestResult { }
 
 export = TestResult;

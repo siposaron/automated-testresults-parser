@@ -6,7 +6,7 @@ const xunit = require('./xunit');
 const mocha = require('./mocha');
 const cucumber = require('./cucumber');
 const TestResult = require('../models/TestResult');
-const { getMatchingFilePaths } = require('../helpers/helper');
+const { getMatchingFilePaths, getJsonFromRemoteXMLFile } = require('../helpers/helper');
 
 /**
  * @param {import('../models/TestResult')[]} results
@@ -68,6 +68,16 @@ function parse(options) {
   return merge(results);
 }
 
+async function parseFromUrl(options) {
+  const parser = getParser(options.type);
+
+  const jsonPromises = options.urls.map(url => parser.parseFromUrl(url, options));
+  const testResults = await Promise.all(jsonPromises);
+
+  return merge(testResults);
+}
+
 module.exports = {
-  parse
+  parse,
+  parseFromUrl
 }
