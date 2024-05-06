@@ -173,8 +173,14 @@ function parse(file) {
   return getTestResult(json);
 }
 
-async function parseFromUrl(url) {
-  const json = await getJsonFromRemoteXMLFile(url);
+/**
+ *
+ * @param {string} url
+ * @param {import('..').ParseFromUrlOptions} options
+ * @returns
+ */
+async function parseFromUrl(url, options) {
+  const json = await getJsonFromRemoteXMLFile(url, options.headers);
   return getTestResult(json);
 }
 

@@ -1,4 +1,4 @@
-const { parse } = require('../src');
+const { parse, parseFromUrl } = require('../src');
 const assert = require('assert');
 
 describe('Parser - NUnit', () => {
@@ -313,6 +313,36 @@ describe('Parser - NUnit', () => {
       assert.equal(testSuiteMetadata?.has("environment"), true);
     });
 
+  });
+
+  context('NUnit Results V3 from remote URL', async () => {
+    before( async () => {
+      result = await parseFromUrl({ 
+        type: 'nunit', 
+        urls: [`https://raw.githubusercontent.com/siposaron/test-results-parser/main/tests/data/nunit/nunit_results_v3.xml`],
+        headers: {} 
+      });
+    });
+
+    it('Should calculate totals', async () => {
+      // totals on the testresult
+      assert.equal(result.total, 6);
+      assert.equal(result.passed, 6);
+      assert.equal(result.failed, 0);
+      assert.equal(result.errors, 0); 
+
+      // compare sum of suite totals to testresult
+      assert.equal( result.suites.reduce( (total, suite) => { return total + suite.total},0), result.total);
+      assert.equal( result.suites.reduce( (total, suite) => { return total + suite.passed},0), result.passed);
+      assert.equal( result.suites.reduce( (total, suite) => { return total + suite.failed},0), result.failed);
+      assert.equal( result.suites.reduce( (total, suite) => { return total + suite.errors},0), result.errors);
+      assert.equal( result.suites.reduce( (total, suite) => { return total + suite.skipped},0), result.skipped);
+    });
+
+    it('Should have correct Status', async () => {
+      // testresult status
+      assert.equal(result.status, 'PASS');
+    });
   });
 
   function sumCases(result, predicate) {

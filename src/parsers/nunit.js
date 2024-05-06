@@ -88,7 +88,6 @@ function populateMetaData(raw, map) {
   }
 
   if (raw.settings) {
-    console.log(`has settings!`);
     const settings = raw.settings.setting;
     for (let i = 0; i < settings.length; i++) {
       const setting = settings[i];
@@ -270,8 +269,14 @@ function parse(file) {
   return getTestResult(json);
 }
 
-async function parseFromUrl(url) {
-  const json = await getJsonFromRemoteXMLFile(url);
+/**
+ *
+ * @param {string} url
+ * @param {import('..').ParseFromUrlOptions} options
+ * @returns
+ */
+async function parseFromUrl(url, options) {
+  const json = await getJsonFromRemoteXMLFile(url, options.headers);
   return getTestResult(json);
 }
 

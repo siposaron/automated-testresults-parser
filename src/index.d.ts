@@ -10,6 +10,7 @@ declare interface ParseFromUrlOptions {
   type: string;
   ignore_error_count?: boolean;
   urls: string[];
+  headers?: Headers;
 }
 
 export function parse(options: ParseOptions): TestResult;

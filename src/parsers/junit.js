@@ -206,11 +206,11 @@ function parse(file, options) {
 /**
  *
  * @param {string} url
- * @param {import('..').ParseOptions} options
+ * @param {import('..').ParseFromUrlOptions} options
  * @returns
  */
 async function parseFromUrl(url, options) {
-  const json = getJsonFromRemoteXMLFile(url);
+  const json = getJsonFromRemoteXMLFile(url, options.headers);
   return getTestResult(json, options);
 }
 
