@@ -276,8 +276,8 @@ describe('Parser - NUnit', () => {
     });
 
     it('Should include fullnames for testsuites and testcases', () => {
-      assert.equal(result.suites[0].name, "MY_PROJECT_Test_Suite.CLUSTER1.Test_CLUSTER1.ID_6_TemperatureSmokeTest");
-      assert.equal(result.suites[0].cases[0].name, "MY_PROJECT_Test_Suite.CLUSTER1.Test_CLUSTER1.ID_6_TemperatureSmokeTest(-5,5.0d)")
+      assert.equal(result.suites[0].name, "MY_PROJECT_Test_Suite.Test_ID_6_TemperatureTest");
+      assert.equal(result.suites[0].cases[0].name, "MY_PROJECT_Test_Suite.Test_ID_6_TemperatureTest(-5,5.0d)")
     });
 
     it('Should map results correctly', () => {

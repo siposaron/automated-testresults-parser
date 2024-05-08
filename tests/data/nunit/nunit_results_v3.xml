@@ -3,12 +3,12 @@
   <command-line><![CDATA[nunit3-console  MY_PROJECT_Test_Suite.dll --result=C:\\WORKDIR\\OUTPUT\\TestResult.xml --tp=TestExecution=C:\\WORKDIR\\exec.config --tp=Hardware=C:\\WORKDIR\\hw.config --tp=Log=C:\\WORKDIR\\OUTPUT --testlist=C:\\WORKDIR\\testlist.txt --x86 --work=C:\\WORKDIR\\OUTPUT]]></command-line>
   <filter>
     <or>
-      <test>MY_PROJECT_Test_Suite.CLUSTER1.Test_CLUSTER1.ID_6_TemperatureSmokeTest</test>
-      <test>MY_PROJECT_Test_Suite.CLUSTER1.Test_CLUSTER1.ID_7_TemperatureSmokeTest</test>
+      <test>MY_PROJECT_Test_Suite.Test_ID_6_TemperatureTest</test>
+      <test>MY_PROJECT_Test_Suite.Test_ID_7_TemperatureTest</test>
     </or>
   </filter>
   <test-suite type="Assembly" id="1-1147" name="MY_PROJECT_Test_Suite.dll" fullname="C:\WORKDIR\MY_PROJECT_Test_Suite.dll" runstate="Runnable" testcasecount="50" result="Passed" start-time="2024-03-21T13:00:24.9587740Z" end-time="2024-03-21T13:00:42.1583593Z" duration="17.198937" total="6" passed="6" failed="0" warnings="0" inconclusive="0" skipped="0" asserts="10">
-    <environment framework-version="3.13.3.0" clr-version="4.0.30319.42000" os-version="Microsoft Windows NT 10.0.19045.0" platform="Win32NT" cwd="C:\WORKDIR" machine-name="ITWD2814" user="labtesting" user-domain="ITWD2814" culture="en-US" uiculture="en-US" os-architecture="x86" />
+    <environment framework-version="3.13.3.0" clr-version="4.0.30319.42000" os-version="Microsoft Windows NT 10.0.19045.0" platform="Win32NT" cwd="C:\WORKDIR" machine-name="MACH01" user="testuser" user-domain="MACH01" culture="en-US" uiculture="en-US" os-architecture="x86" />
     <settings>
       <setting name="RunAsX86" value="True" />
       <setting name="DisposeRunners" value="True" />
@@ -31,42 +31,42 @@
       <property name="_APPDOMAIN" value="domain-" />
     </properties>
     <test-suite type="TestSuite" id="1-1149" name="MY_PROJECT_Test_Suite" fullname="MY_PROJECT_Test_Suite" runstate="Runnable" testcasecount="50" result="Passed" start-time="2024-03-21T13:00:24.9757740Z" end-time="2024-03-21T13:00:42.1583593Z" duration="17.182796" total="6" passed="6" failed="0" warnings="0" inconclusive="0" skipped="0" asserts="10">
-      <test-suite type="TestSuite" id="1-1154" name="CLUSTER1" fullname="MY_PROJECT_Test_Suite.CLUSTER1" runstate="Runnable" testcasecount="24" result="Passed" start-time="2024-03-21T13:00:24.9757740Z" end-time="2024-03-21T13:00:42.1583593Z" duration="17.182193" total="6" passed="6" failed="0" warnings="0" inconclusive="0" skipped="0" asserts="10">
-        <test-suite type="TestFixture" id="1-1092" name="Test_CLUSTER1" fullname="MY_PROJECT_Test_Suite.CLUSTER1.Test_CLUSTER1" classname="MY_PROJECT_Test_Suite.CLUSTER1.Test_CLUSTER1" runstate="Runnable" testcasecount="24" result="Passed" start-time="2024-03-21T13:00:24.9777743Z" end-time="2024-03-21T13:00:42.1583593Z" duration="17.180456" total="6" passed="6" failed="0" warnings="0" inconclusive="0" skipped="0" asserts="10">
-          <test-suite type="ParameterizedMethod" id="1-1133" name="ID_6_TemperatureSmokeTest" fullname="MY_PROJECT_Test_Suite.CLUSTER1.Test_CLUSTER1.ID_6_TemperatureSmokeTest" classname="MY_PROJECT_Test_Suite.CLUSTER1.Test_CLUSTER1" runstate="Runnable" testcasecount="4" result="Passed" start-time="2024-03-21T13:00:25.5237759Z" end-time="2024-03-21T13:00:32.4270135Z" duration="6.902941" total="4" passed="4" failed="0" warnings="0" inconclusive="0" skipped="0" asserts="8">
-            <test-case id="1-1129" name="ID_6_TemperatureSmokeTest(-5,5.0d)" fullname="MY_PROJECT_Test_Suite.CLUSTER1.Test_CLUSTER1.ID_6_TemperatureSmokeTest(-5,5.0d)" methodname="ID_6_TemperatureSmokeTest" classname="MY_PROJECT_Test_Suite.CLUSTER1.Test_CLUSTER1" runstate="Runnable" seed="1871824265" result="Passed" start-time="2024-03-21T13:00:25.5247755Z" end-time="2024-03-21T13:00:27.4477724Z" duration="1.923164" asserts="2">
+      <test-suite type="TestSuite" id="1-1154" name="KLASTER" fullname="MY_PROJECT_Test_Suite.KLASTER" runstate="Runnable" testcasecount="24" result="Passed" start-time="2024-03-21T13:00:24.9757740Z" end-time="2024-03-21T13:00:42.1583593Z" duration="17.182193" total="6" passed="6" failed="0" warnings="0" inconclusive="0" skipped="0" asserts="10">
+        <test-suite type="TestFixture" id="1-1092" name="Test_KLASTER" fullname="MY_PROJECT_Test_Suite.Test_KLASTER" classname="MY_PROJECT_Test_Suite.Test_KLASTER" runstate="Runnable" testcasecount="24" result="Passed" start-time="2024-03-21T13:00:24.9777743Z" end-time="2024-03-21T13:00:42.1583593Z" duration="17.180456" total="6" passed="6" failed="0" warnings="0" inconclusive="0" skipped="0" asserts="10">
+          <test-suite type="ParameterizedMethod" id="1-1133" name="ID_6_TemperatureTest" fullname="MY_PROJECT_Test_Suite.Test_ID_6_TemperatureTest" classname="MY_PROJECT_Test_Suite.Test_KLASTER" runstate="Runnable" testcasecount="4" result="Passed" start-time="2024-03-21T13:00:25.5237759Z" end-time="2024-03-21T13:00:32.4270135Z" duration="6.902941" total="4" passed="4" failed="0" warnings="0" inconclusive="0" skipped="0" asserts="8">
+            <test-case id="1-1129" name="ID_6_TemperatureTest(-5,5.0d)" fullname="MY_PROJECT_Test_Suite.Test_ID_6_TemperatureTest(-5,5.0d)" methodname="ID_6_TemperatureTest" classname="MY_PROJECT_Test_Suite.Test_KLASTER" runstate="Runnable" seed="1871824265" result="Passed" start-time="2024-03-21T13:00:25.5247755Z" end-time="2024-03-21T13:00:27.4477724Z" duration="1.923164" asserts="2">
               <output><![CDATA[
-TemperatureSmokeTest
+TemperatureTest
 Test: -5 Degrees
 ]]></output>
             </test-case>
-            <test-case id="1-1130" name="ID_6_TemperatureSmokeTest(10,5.0d)" fullname="MY_PROJECT_Test_Suite.CLUSTER1.Test_CLUSTER1.ID_6_TemperatureSmokeTest(10,5.0d)" methodname="ID_6_TemperatureSmokeTest" classname="MY_PROJECT_Test_Suite.CLUSTER1.Test_CLUSTER1" runstate="Runnable" seed="314439545" result="Passed" start-time="2024-03-21T13:00:27.4557732Z" end-time="2024-03-21T13:00:29.1173027Z" duration="1.661494" asserts="2">
+            <test-case id="1-1130" name="ID_6_TemperatureTest(10,5.0d)" fullname="MY_PROJECT_Test_Suite.Test_ID_6_TemperatureTest(10,5.0d)" methodname="ID_6_TemperatureTest" classname="MY_PROJECT_Test_Suite.Test_KLASTER" runstate="Runnable" seed="314439545" result="Passed" start-time="2024-03-21T13:00:27.4557732Z" end-time="2024-03-21T13:00:29.1173027Z" duration="1.661494" asserts="2">
               <output><![CDATA[
-TemperatureSmokeTest
+TemperatureTest
 Test: 10 Degrees
 ]]></output>
             </test-case>
-            <test-case id="1-1131" name="ID_6_TemperatureSmokeTest(25,5.0d)" fullname="MY_PROJECT_Test_Suite.CLUSTER1.Test_CLUSTER1.ID_6_TemperatureSmokeTest(25,5.0d)" methodname="ID_6_TemperatureSmokeTest" classname="MY_PROJECT_Test_Suite.CLUSTER1.Test_CLUSTER1" runstate="Runnable" seed="667123305" result="Passed" start-time="2024-03-21T13:00:29.1173027Z" end-time="2024-03-21T13:00:30.7710016Z" duration="1.653427" asserts="2">
+            <test-case id="1-1131" name="ID_6_TemperatureTest(25,5.0d)" fullname="MY_PROJECT_Test_Suite.Test_ID_6_TemperatureTest(25,5.0d)" methodname="ID_6_TemperatureTest" classname="MY_PROJECT_Test_Suite.Test_KLASTER" runstate="Runnable" seed="667123305" result="Passed" start-time="2024-03-21T13:00:29.1173027Z" end-time="2024-03-21T13:00:30.7710016Z" duration="1.653427" asserts="2">
               <output><![CDATA[
-TemperatureSmokeTest
+TemperatureTest
 Test: 25 Degrees
 ]]></output>
             </test-case>
-            <test-case id="1-1132" name="ID_6_TemperatureSmokeTest(40,5.0d)" fullname="MY_PROJECT_Test_Suite.CLUSTER1.Test_CLUSTER1.ID_6_TemperatureSmokeTest(40,5.0d)" methodname="ID_6_TemperatureSmokeTest" classname="MY_PROJECT_Test_Suite.CLUSTER1.Test_CLUSTER1" runstate="Runnable" seed="2147162980" result="Passed" start-time="2024-03-21T13:00:30.7710016Z" end-time="2024-03-21T13:00:32.4240006Z" duration="1.652962" asserts="2">
+            <test-case id="1-1132" name="ID_6_TemperatureTest(40,5.0d)" fullname="MY_PROJECT_Test_Suite.Test_ID_6_TemperatureTest(40,5.0d)" methodname="ID_6_TemperatureTest" classname="MY_PROJECT_Test_Suite.Test_KLASTER" runstate="Runnable" seed="2147162980" result="Passed" start-time="2024-03-21T13:00:30.7710016Z" end-time="2024-03-21T13:00:32.4240006Z" duration="1.652962" asserts="2">
               <output><![CDATA[
-TemperatureSmokeTest
+TemperatureTest
 Test: 40 Degrees
 ]]></output>
             </test-case>
           </test-suite>
-          <test-suite type="ParameterizedMethod" id="1-1137" name="ID_7_TemperatureSmokeTest" fullname="MY_PROJECT_Test_Suite.CLUSTER1.Test_CLUSTER1.ID_7_TemperatureSmokeTest" classname="MY_PROJECT_Test_Suite.CLUSTER1.Test_CLUSTER1" runstate="Runnable" testcasecount="2" result="Passed" start-time="2024-03-21T13:00:32.4279905Z" end-time="2024-03-21T13:00:38.6126418Z" duration="6.184379" total="2" passed="2" failed="0" warnings="0" inconclusive="0" skipped="0" asserts="2">
-            <test-case id="1-1135" name="ID_7_TemperatureSmokeTest(1,byte.MinValue)" fullname="MY_PROJECT_Test_Suite.CLUSTER1.Test_CLUSTER1.ID_7_TemperatureSmokeTest(1,byte.MinValue)" methodname="ID_7_TemperatureSmokeTest" classname="MY_PROJECT_Test_Suite.CLUSTER1.Test_CLUSTER1" runstate="Runnable" seed="1635619054" result="Passed" start-time="2024-03-21T13:00:32.4279905Z" end-time="2024-03-21T13:00:35.5118074Z" duration="3.083900" asserts="1">
+          <test-suite type="ParameterizedMethod" id="1-1137" name="ID_7_TemperatureTest" fullname="MY_PROJECT_Test_Suite.Test_ID_7_TemperatureTest" classname="MY_PROJECT_Test_Suite.Test_KLASTER" runstate="Runnable" testcasecount="2" result="Passed" start-time="2024-03-21T13:00:32.4279905Z" end-time="2024-03-21T13:00:38.6126418Z" duration="6.184379" total="2" passed="2" failed="0" warnings="0" inconclusive="0" skipped="0" asserts="2">
+            <test-case id="1-1135" name="ID_7_TemperatureTest(1,byte.MinValue)" fullname="MY_PROJECT_Test_Suite.Test_ID_7_TemperatureTest(1,byte.MinValue)" methodname="ID_7_TemperatureTest" classname="MY_PROJECT_Test_Suite.Test_KLASTER" runstate="Runnable" seed="1635619054" result="Passed" start-time="2024-03-21T13:00:32.4279905Z" end-time="2024-03-21T13:00:35.5118074Z" duration="3.083900" asserts="1">
               <output><![CDATA[
 DoorSmokeTest
 Door State matched 1.
 ]]></output>
             </test-case>
-            <test-case id="1-1136" name="ID_7_TemperatureSmokeTest(byte.MinValue,byte.MinValue)" fullname="MY_PROJECT_Test_Suite.CLUSTER1.Test_CLUSTER1.ID_7_TemperatureSmokeTest(byte.MinValue,byte.MinValue)" methodname="ID_7_TemperatureSmokeTest" classname="MY_PROJECT_Test_Suite.CLUSTER1.Test_CLUSTER1" runstate="Runnable" seed="852189403" result="Passed" start-time="2024-03-21T13:00:35.5118074Z" end-time="2024-03-21T13:00:38.6126418Z" duration="3.100353" asserts="1">
+            <test-case id="1-1136" name="ID_7_TemperatureTest(byte.MinValue,byte.MinValue)" fullname="MY_PROJECT_Test_Suite.Test_ID_7_TemperatureTest(byte.MinValue,byte.MinValue)" methodname="ID_7_TemperatureTest" classname="MY_PROJECT_Test_Suite.Test_KLASTER" runstate="Runnable" seed="852189403" result="Passed" start-time="2024-03-21T13:00:35.5118074Z" end-time="2024-03-21T13:00:38.6126418Z" duration="3.100353" asserts="1">
               <output><![CDATA[
 DoorSmokeTest
 Door State matched 2.
