@@ -1,8 +1,12 @@
-const { resolveFilePath, getJsonFromRemoteXMLFile } = require('../helpers/helper');
+const {
+  resolveFilePath,
+  getJsonFromXML,
+  getJsonFromRemoteXMLFile,
+} = require("../helpers/helper");
 
-const TestResult = require('../models/TestResult');
-const TestSuite = require('../models/TestSuite');
-const TestCase = require('../models/TestCase');
+const TestResult = require("../models/TestResult");
+const TestSuite = require("../models/TestSuite");
+const TestCase = require("../models/TestCase");
 
 function getTestCase(rawCase) {
   const test_case = new TestCase();
@@ -10,11 +14,10 @@ function getTestCase(rawCase) {
   test_case.duration = rawCase["duration"];
   setMetaData(rawCase, test_case);
   if (rawCase.state && rawCase.state === "failed") {
-    test_case.status = 'FAIL';
+    test_case.status = "FAIL";
     set_error_and_stack_trace(test_case, rawCase.errorStack);
-  }
-  else {
-    test_case.status = 'PASS';
+  } else {
+    test_case.status = "PASS";
   }
   return test_case;
 }
@@ -25,7 +28,7 @@ function getTestCase(rawCase) {
  */
 function set_error_and_stack_trace(test_case, message) {
   if (message) {
-    const stack_trace_start_index = message.indexOf('    at ');
+    const stack_trace_start_index = message.indexOf("    at ");
     if (stack_trace_start_index) {
       const failure = message.slice(0, stack_trace_start_index);
       const stack_trace = message.slice(stack_trace_start_index);
@@ -68,7 +71,7 @@ function getTestSuite(rawSuite) {
   suite.passed = rawSuite["passes"];
   suite.failed = rawSuite["failures"];
   suite.duration = rawSuite["duration"];
-  suite.status = suite.total === suite.passed ? 'PASS' : 'FAIL';
+  suite.status = suite.total === suite.passed ? "PASS" : "FAIL";
   setMetaData(rawSuite, suite);
   const raw_test_cases = rawSuite.elements;
   if (raw_test_cases) {
@@ -100,7 +103,7 @@ function getTestResult(json) {
       result.suites.push(getTestSuite(suites[i]));
     }
   }
-  result.status = result.total === result.passed ? 'PASS' : 'FAIL';
+  result.status = result.total === result.passed ? "PASS" : "FAIL";
   return result;
 }
 
@@ -112,32 +115,62 @@ function getTestResult(json) {
 function preprocess(json) {
   const formattedResult = { stats: {}, suites: [] };
 
-  json.forEach(testSuite => {
-    testSuite.elements.forEach(testCase => {
-      testCase.state = testCase.steps.every(step => step.result.status === "passed") ? "passed" : "failed";
-      testCase.duration = testCase.steps.map(step => step.result.duration).reduce((total, currVal) => total + currVal, 0) / 1000000;
+  json.forEach((testSuite) => {
+    testSuite.elements.forEach((testCase) => {
+      testCase.state = testCase.steps.every(
+        (step) => step.result.status === "passed"
+      )
+        ? "passed"
+        : "failed";
+      testCase.duration =
+        testCase.steps
+          .map((step) => step.result.duration)
+          .reduce((total, currVal) => total + currVal, 0) / 1000000;
       testCase.duration = parseFloat(testCase.duration.toFixed(2));
-      testCase.errorStack = testCase.steps.filter(step => step.result.status === "failed").map(step => step.result.error_message)[0] || "";
-    })
+      testCase.errorStack =
+        testCase.steps
+          .filter((step) => step.result.status === "failed")
+          .map((step) => step.result.error_message)[0] || "";
+    });
     testSuite.tests = testSuite.elements.length;
 
     if (testSuite.tests) {
-      testSuite.failures = testSuite.elements.filter(testCase => testCase.state === "failed").length;
-      testSuite.passes = testSuite.elements.filter(testCase => testCase.state === "passed").length;
-      testSuite.duration = testSuite.elements.map(testCase => testCase.duration).reduce((total, currVal) => total + currVal, 0);
+      testSuite.failures = testSuite.elements.filter(
+        (testCase) => testCase.state === "failed"
+      ).length;
+      testSuite.passes = testSuite.elements.filter(
+        (testCase) => testCase.state === "passed"
+      ).length;
+      testSuite.duration = testSuite.elements
+        .map((testCase) => testCase.duration)
+        .reduce((total, currVal) => total + currVal, 0);
     }
     formattedResult.suites.push(testSuite);
   });
 
   formattedResult.stats.suites = formattedResult.suites.length;
-  for (const statsType of ["tests", "passes", "failures", "errors", "duration"]) {
-    formattedResult.stats[statsType] = formattedResult.suites.map(testSuite => testSuite[statsType]).reduce((total, currVal) => total + currVal, 0) || 0;
+  for (const statsType of [
+    "tests",
+    "passes",
+    "failures",
+    "errors",
+    "duration",
+  ]) {
+    formattedResult.stats[statsType] =
+      formattedResult.suites
+        .map((testSuite) => testSuite[statsType])
+        .reduce((total, currVal) => total + currVal, 0) || 0;
   }
   return formattedResult;
 }
 
 function parse(file) {
   const json = require(resolveFilePath(file));
+  return getTestResult(json);
+}
+
+function parseString(content) {
+  const json = getJsonFromXML(content);
   return getTestResult(json);
 }
 
@@ -154,5 +187,6 @@ async function parseFromUrl(url, options) {
 
 module.exports = {
   parse,
-  parseFromUrl
-}
+  parseString,
+  parseFromUrl,
+};

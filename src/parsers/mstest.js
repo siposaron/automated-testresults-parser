@@ -1,16 +1,20 @@
-const { getJsonFromXMLFile, getJsonFromRemoteXMLFile } = require('../helpers/helper');
-const path = require('path');
+const {
+  getJsonFromXML,
+  getJsonFromXMLFile,
+  getJsonFromRemoteXMLFile,
+} = require("../helpers/helper");
+const path = require("path");
 
-const TestResult = require('../models/TestResult');
-const TestSuite = require('../models/TestSuite');
-const TestCase = require('../models/TestCase');
-const TestAttachment = require('../models/TestAttachment');
+const TestResult = require("../models/TestResult");
+const TestSuite = require("../models/TestSuite");
+const TestCase = require("../models/TestCase");
+const TestAttachment = require("../models/TestAttachment");
 
 const RESULT_MAP = {
   Passed: "PASS",
   Failed: "FAIL",
   NotExecuted: "SKIP",
-}
+};
 
 function populateMetaData(rawElement, map) {
   if (rawElement.TestCategory && rawElement.TestCategory.TestCategoryItem) {
@@ -42,7 +46,6 @@ function populateMetaData(rawElement, map) {
 }
 
 function populateAttachments(rawResultElement, attachments, testRunName) {
-
   // attachments are in /TestRun/Results/UnitTestResult/ResultFiles/ResultFile[@path]
   if (rawResultElement.ResultFiles && rawResultElement.ResultFiles.ResultFile) {
     let executionId = rawResultElement["@_executionId"];
@@ -50,12 +53,16 @@ function populateAttachments(rawResultElement, attachments, testRunName) {
     for (let i = 0; i < rawAttachments.length; i++) {
       let filePath = rawAttachments[i]["@_path"];
       if (filePath) {
-
         // file path is relative to testresults.trx
         // stored in ./<testrunname>/in/<executionId>/path
 
         let attachment = new TestAttachment();
-        attachment.path = path.join(testRunName, "In", executionId, ...(filePath.split(/[\\/]/g)));
+        attachment.path = path.join(
+          testRunName,
+          "In",
+          executionId,
+          ...filePath.split(/[\\/]/g)
+        );
         attachments.push(attachment);
       }
     }
@@ -95,9 +102,9 @@ function getTestRunName(rawTestRun) {
   // testrun.name contains '@', spaces and ':'
   let name = rawTestRun["@_name"];
   if (name) {
-    return name.replace(/[ @:]/g, '_');
+    return name.replace(/[ @:]/g, "_");
   }
-  return '';
+  return "";
 }
 
 function getTestCase(rawTestResult, definitionMap, testRunName) {
@@ -115,7 +122,7 @@ function getTestCase(rawTestResult, definitionMap, testRunName) {
     // collect error messages
     if (rawTestResult.Output && rawTestResult.Output.ErrorInfo) {
       testCase.setFailure(rawTestResult.Output.ErrorInfo.Message);
-      testCase.stack_trace = rawTestResult.Output.ErrorInfo.StackTrace ?? '';
+      testCase.stack_trace = rawTestResult.Output.ErrorInfo.StackTrace ?? "";
     }
     // populate attachments
     populateAttachments(rawTestResult, testCase.attachments, testRunName);
@@ -124,7 +131,7 @@ function getTestCase(rawTestResult, definitionMap, testRunName) {
 
     return testCase;
   } else {
-    throw new Error(`Unrecognized testId ${id ?? ''}`);
+    throw new Error(`Unrecognized testId ${id ?? ""}`);
   }
 }
 
@@ -160,7 +167,6 @@ function getTestResults(rawTestResults) {
 }
 
 function getTestSuites(rawTestRun) {
-
   // test attachments are stored in a testrun specific folder <name>/in/<executionid>/<computername>
   const testRunName = getTestRunName(rawTestRun);
   // outcomes + durations are stored in /TestRun/TestResults/*
@@ -188,11 +194,13 @@ function getTestSuites(rawTestRun) {
   var result = [];
   for (let suite of suiteMap.values()) {
     suite.total = suite.cases.length;
-    suite.passed = suite.cases.filter(i => i.status == "PASS").length;
-    suite.failed = suite.cases.filter(i => i.status == "FAIL").length;
-    suite.skipped = suite.cases.filter(i => i.status == "SKIP").length;
-    suite.errors = suite.cases.filter(i => i.status == "ERROR").length;
-    suite.duration = suite.cases.reduce((total, test) => { return total + test.duration }, 0);
+    suite.passed = suite.cases.filter((i) => i.status == "PASS").length;
+    suite.failed = suite.cases.filter((i) => i.status == "FAIL").length;
+    suite.skipped = suite.cases.filter((i) => i.status == "SKIP").length;
+    suite.errors = suite.cases.filter((i) => i.status == "ERROR").length;
+    suite.duration = suite.cases.reduce((total, test) => {
+      return total + test.duration;
+    }, 0);
     result.push(suite);
   }
 
@@ -207,18 +215,35 @@ function getTestResult(json) {
   result.suites.push(...getTestSuites(rawTestRun));
 
   // calculate totals
-  result.total = result.suites.reduce((total, suite) => { return total + suite.total }, 0);
-  result.passed = result.suites.reduce((total, suite) => { return total + suite.passed }, 0);
-  result.failed = result.suites.reduce((total, suite) => { return total + suite.failed }, 0);
-  result.skipped = result.suites.reduce((total, suite) => { return total + suite.skipped }, 0);
-  result.errors = result.suites.reduce((total, suite) => { return total + suite.errors }, 0);
-  result.duration = result.suites.reduce((total, suite) => { return total + suite.duration }, 0);
+  result.total = result.suites.reduce((total, suite) => {
+    return total + suite.total;
+  }, 0);
+  result.passed = result.suites.reduce((total, suite) => {
+    return total + suite.passed;
+  }, 0);
+  result.failed = result.suites.reduce((total, suite) => {
+    return total + suite.failed;
+  }, 0);
+  result.skipped = result.suites.reduce((total, suite) => {
+    return total + suite.skipped;
+  }, 0);
+  result.errors = result.suites.reduce((total, suite) => {
+    return total + suite.errors;
+  }, 0);
+  result.duration = result.suites.reduce((total, suite) => {
+    return total + suite.duration;
+  }, 0);
 
   return result;
 }
 
 function parse(file) {
   const json = getJsonFromXMLFile(file);
+  return getTestResult(json);
+}
+
+function parseString(content) {
+  const json = getJsonFromXML(content);
   return getTestResult(json);
 }
 
@@ -235,5 +260,6 @@ async function parseFromUrl(url, options) {
 
 module.exports = {
   parse,
-  parseFromUrl
-}
+  parseString,
+  parseFromUrl,
+};
