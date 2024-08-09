@@ -1,29 +1,33 @@
-const { getJsonFromXMLFile, getJsonFromRemoteXMLFile } = require('../helpers/helper');
+const {
+  getJsonFromXML,
+  getJsonFromXMLFile,
+  getJsonFromRemoteXMLFile,
+} = require("../helpers/helper");
 
-const TestResult = require('../models/TestResult');
-const TestSuite = require('../models/TestSuite');
-const TestCase = require('../models/TestCase');
-const TestAttachment = require('../models/TestAttachment');
+const TestResult = require("../models/TestResult");
+const TestSuite = require("../models/TestSuite");
+const TestCase = require("../models/TestCase");
+const TestAttachment = require("../models/TestAttachment");
 
 const SUITE_TYPES_WITH_TEST_CASES = [
   "TestFixture",
   "ParameterizedTest",
   "GenericFixture",
-  "ParameterizedMethod"   // v3
-]
+  "ParameterizedMethod", // v3
+];
 
 const RESULT_MAP = {
-  Success: "PASS",        // v2
-  Failure: "FAIL",        // v2
-  Ignored: "SKIP",        // v2
-  NotRunnable: "SKIP",    // v2
-  Error: "ERROR",         // v2
-  Inconclusive: "FAIL",   // v2
+  Success: "PASS", // v2
+  Failure: "FAIL", // v2
+  Ignored: "SKIP", // v2
+  NotRunnable: "SKIP", // v2
+  Error: "ERROR", // v2
+  Inconclusive: "FAIL", // v2
 
-  Passed: "PASS",         // v3
-  Failed: "FAIL",         // v3
-  Skipped: "SKIP",        // v3
-}
+  Passed: "PASS", // v3
+  Failed: "FAIL", // v3
+  Skipped: "SKIP", // v3
+};
 
 function populateAttachments(rawCase, attachments) {
   if (rawCase.attachments && rawCase.attachments.attachment) {
@@ -46,7 +50,6 @@ function mergeMeta(map1, map2) {
 }
 
 function populateMetaData(raw, map) {
-
   // v2 supports categories
   if (raw.categories) {
     let categories = raw.categories.category;
@@ -73,14 +76,12 @@ function populateMetaData(raw, map) {
 
       // v3 treats 'Categories' as property "Category"
       if (propName == "Category") {
-
         if (map.has("Categories")) {
           map.set("Categories", map.get("Categories").concat(",", propValue));
         } else {
           map.set("Categories", propValue);
         }
         map.set(propValue, "");
-
       } else {
         map.set(propName, propValue);
       }
@@ -106,13 +107,13 @@ function populateMetaData(raw, map) {
       "framework-version": environment["@_framework-version"],
       "clr-version": environment["@_clr-version"],
       "os-version": environment["@_os-version"],
-      "platform": environment["@_platform"],
-      "cwd": environment["@_cwd"],
+      platform: environment["@_platform"],
+      cwd: environment["@_cwd"],
       "machine-name": environment["@_machine-name"],
-      "user": environment["@_user"],
+      user: environment["@_user"],
       "user-domain": environment["@_user-domain"],
-      "culture": environment["@_culture"],
-      "os-architecture": environment["@_os-architecture"]
+      culture: environment["@_culture"],
+      "os-architecture": environment["@_os-architecture"],
     });
   }
 }
@@ -137,8 +138,7 @@ function getNestedSuite(rawSuite) {
     // nunit v3 nests test-suites as immediate children
     if (rawSuite["test-suite"]) {
       return rawSuite["test-suite"];
-    }
-    else {
+    } else {
       // not nested
       return null;
     }
@@ -153,7 +153,7 @@ function getTestCases(rawSuite, parent_meta) {
     for (let i = 0; i < rawTestCases.length; i++) {
       let rawCase = rawTestCases[i];
       let testCase = new TestCase();
-      let result = rawCase["@_result"]
+      let result = rawCase["@_result"];
       testCase.id = rawCase["@_id"] ?? "";
       testCase.name = rawCase["@_fullname"] ?? rawCase["@_name"];
       testCase.duration = rawCase["@_time"] * 1000; // in milliseconds
@@ -174,7 +174,7 @@ function getTestCases(rawSuite, parent_meta) {
       if (errorDetails !== undefined) {
         testCase.setFailure(errorDetails.message);
         if (errorDetails["stack-trace"]) {
-          testCase.stack_trace = errorDetails["stack-trace"]
+          testCase.stack_trace = errorDetails["stack-trace"];
         }
       }
       // populate attachments
@@ -205,9 +205,8 @@ function getTestSuites(rawSuites, assembly_meta) {
       // handle nested test-suites
       suites.push(...getTestSuites(getNestedSuite(rawSuite), assembly_meta));
     } else if (SUITE_TYPES_WITH_TEST_CASES.indexOf(rawSuite["@_type"]) !== -1) {
-
       let suite = new TestSuite();
-      suite.id = rawSuite["@_id"] ?? '';
+      suite.id = rawSuite["@_id"] ?? "";
       suite.name = rawSuite["@_fullname"] ?? rawSuite["@_name"];
       suite.duration = rawSuite["@_time"] * 1000; // in milliseconds
       if (rawSuite["@_duration"]) {
@@ -222,10 +221,10 @@ function getTestSuites(rawSuites, assembly_meta) {
 
       // calculate totals
       suite.total = suite.cases.length;
-      suite.passed = suite.cases.filter(i => i.status == "PASS").length;
-      suite.failed = suite.cases.filter(i => i.status == "FAIL").length;
-      suite.errors = suite.cases.filter(i => i.status == "ERROR").length;
-      suite.skipped = suite.cases.filter(i => i.status == "SKIP").length;
+      suite.passed = suite.cases.filter((i) => i.status == "PASS").length;
+      suite.failed = suite.cases.filter((i) => i.status == "FAIL").length;
+      suite.errors = suite.cases.filter((i) => i.status == "ERROR").length;
+      suite.skipped = suite.cases.filter((i) => i.status == "SKIP").length;
 
       suites.push(suite);
     }
@@ -235,8 +234,12 @@ function getTestSuites(rawSuites, assembly_meta) {
 }
 
 function getTestResult(json) {
-  const nunitVersion = (json["test-results"] !== undefined) ? "v2" :
-    (json["test-run"] !== undefined) ? "v3" : null;
+  const nunitVersion =
+    json["test-results"] !== undefined
+      ? "v2"
+      : json["test-run"] !== undefined
+      ? "v3"
+      : null;
 
   if (nunitVersion == null) {
     throw new Error("Unrecognized xml format");
@@ -255,17 +258,32 @@ function getTestResult(json) {
 
   result.suites.push(...getTestSuites([rawSuite], null));
 
-  result.total = result.suites.reduce((total, suite) => { return total + suite.cases.length }, 0);
-  result.passed = result.suites.reduce((total, suite) => { return total + suite.passed }, 0);
-  result.failed = result.suites.reduce((total, suite) => { return total + suite.failed }, 0);
-  result.skipped = result.suites.reduce((total, suite) => { return total + suite.skipped }, 0);
-  result.errors = result.suites.reduce((total, suite) => { return total + suite.errors }, 0);
+  result.total = result.suites.reduce((total, suite) => {
+    return total + suite.cases.length;
+  }, 0);
+  result.passed = result.suites.reduce((total, suite) => {
+    return total + suite.passed;
+  }, 0);
+  result.failed = result.suites.reduce((total, suite) => {
+    return total + suite.failed;
+  }, 0);
+  result.skipped = result.suites.reduce((total, suite) => {
+    return total + suite.skipped;
+  }, 0);
+  result.errors = result.suites.reduce((total, suite) => {
+    return total + suite.errors;
+  }, 0);
 
   return result;
 }
 
 function parse(file) {
   const json = getJsonFromXMLFile(file);
+  return getTestResult(json);
+}
+
+function parseString(content) {
+  const json = getJsonFromXML(content);
   return getTestResult(json);
 }
 
@@ -281,6 +299,7 @@ async function parseFromUrl(url, options) {
 }
 
 module.exports = {
-  parse, 
-  parseFromUrl
-}
+  parse,
+  parseString,
+  parseFromUrl,
+};

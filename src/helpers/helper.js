@@ -1,10 +1,9 @@
-const fs = require('fs');
-const path = require('path');
-const parser = require('fast-xml-parser');
-const { totalist } = require('totalist/sync');
-const globrex = require('globrex');
+const fs = require("fs");
+const path = require("path");
+const parser = require("fast-xml-parser");
+const { totalist } = require("totalist/sync");
+const globrex = require("globrex");
 const { XMLParser } = require("fast-xml-parser");
-
 
 /**
  * fast xml parser v4's default behavior is to return an object if there is only one element
@@ -38,18 +37,18 @@ const FORCED_ARRAY_KEYS = [
   "TestRun.Results.UnitTestResult.ResultFiles.ResultFile",
   "TestRun.TestDefinitions.UnitTest",
   "TestRun.TestDefinitions.UnitTest.Properties.Property",
-  "TestRun.TestDefinitions.UnitTest.TestCategory.TestCategoryItem"
+  "TestRun.TestDefinitions.UnitTest.TestCategory.TestCategoryItem",
 ];
 
 const configured_parser = new XMLParser({
   isArray: (name, jpath, isLeafNode, isAttribute) => {
-    if( FORCED_ARRAY_KEYS.indexOf(jpath) !== -1) {
+    if (FORCED_ARRAY_KEYS.indexOf(jpath) !== -1) {
       return true;
     }
     // handle nunit deep hierarchy
     else if (jpath.startsWith("test-results") || jpath.startsWith("test-run")) {
       let parts = jpath.split(".");
-      switch(parts[parts.length - 1]) {
+      switch (parts[parts.length - 1]) {
         case "category":
         case "property":
         case "test-suite":
@@ -75,10 +74,14 @@ function getJsonFromXMLFile(filePath) {
   return configured_parser.parse(xml);
 }
 
+function getJsonFromXML(xmlContent) {
+  return configured_parser.parse(xmlContent);
+}
+
 async function getJsonFromRemoteXMLFile(url, headers) {
   const xml = await fetch(url, {
-    headers: headers
-  }).then(response => response.text());
+    headers: headers,
+  }).then((response) => response.text());
   return configured_parser.parse(xml);
 }
 
@@ -86,10 +89,12 @@ async function getJsonFromRemoteXMLFile(url, headers) {
  * @param {string} file_path
  */
 function getMatchingFilePaths(file_path) {
-  if (file_path.includes('*')) {
+  if (file_path.includes("*")) {
     const file_paths = [];
     const result = globrex(file_path);
-    const dir_name = path.dirname(file_path.substring(0, file_path.indexOf('*') + 1));
+    const dir_name = path.dirname(
+      file_path.substring(0, file_path.indexOf("*") + 1)
+    );
     totalist(dir_name, (name) => {
       const current_file_path = `${dir_name}/${name}`;
       if (result.regex.test(current_file_path)) {
@@ -105,5 +110,6 @@ module.exports = {
   getJsonFromXMLFile,
   getMatchingFilePaths,
   resolveFilePath,
-  getJsonFromRemoteXMLFile
-}
+  getJsonFromRemoteXMLFile,
+  getJsonFromXML,
+};

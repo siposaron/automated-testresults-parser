@@ -1,9 +1,13 @@
-const { getJsonFromXMLFile, getJsonFromRemoteXMLFile } = require('../helpers/helper');
+const {
+  getJsonFromXML,
+  getJsonFromXMLFile,
+  getJsonFromRemoteXMLFile,
+} = require("../helpers/helper");
 
-const TestResult = require('../models/TestResult');
-const TestSuite = require('../models/TestSuite');
-const TestCase = require('../models/TestCase');
-const TestAttachment = require('../models/TestAttachment');
+const TestResult = require("../models/TestResult");
+const TestSuite = require("../models/TestSuite");
+const TestCase = require("../models/TestCase");
+const TestAttachment = require("../models/TestAttachment");
 
 function getTestCase(rawCase, suite_meta) {
   const test_case = new TestCase();
@@ -13,10 +17,10 @@ function getTestCase(rawCase, suite_meta) {
   setAttachments(rawCase, test_case);
   setMetaData(rawCase, test_case);
   if (rawCase.failure && rawCase.failure.length > 0) {
-    test_case.status = 'FAIL';
+    test_case.status = "FAIL";
     set_error_and_stack_trace(test_case, rawCase);
   } else {
-    test_case.status = 'PASS';
+    test_case.status = "PASS";
   }
   return test_case;
 }
@@ -27,8 +31,8 @@ function set_error_and_stack_trace(test_case, raw_case) {
   if (!test_case.failure && raw_case.error && raw_case.error.length > 0) {
     test_case.setFailure(raw_case.error[0]["@_message"]);
   }
-  if (raw_case['system-err'] && raw_case['system-err'].length > 0) {
-    test_case.stack_trace = raw_case['system-err'][0];
+  if (raw_case["system-err"] && raw_case["system-err"].length > 0) {
+    test_case.stack_trace = raw_case["system-err"][0];
   }
   if (!test_case.stack_trace) {
     if (raw_case.failure[0]["#text"]) {
@@ -59,7 +63,7 @@ function getTestSuite(rawSuite, options) {
   suite.total = suite.total - suite.skipped;
   suite.passed = suite.total - suite.failed - suite.errors;
   suite.duration = rawSuite["@_time"] * 1000;
-  suite.status = suite.total === suite.passed ? 'PASS' : 'FAIL';
+  suite.status = suite.total === suite.passed ? "PASS" : "FAIL";
   setMetaData(rawSuite, suite);
   const raw_test_cases = rawSuite.testcase;
   if (raw_test_cases) {
@@ -78,7 +82,10 @@ function setMetaData(rawElement, test_element) {
   if (rawElement.properties && rawElement.properties.property.length > 0) {
     const raw_properties = rawElement.properties.property;
     for (const raw_property of raw_properties) {
-      test_element.meta_data.set(raw_property["@_name"], raw_property["@_value"]);
+      test_element.meta_data.set(
+        raw_property["@_name"],
+        raw_property["@_value"]
+      );
     }
   }
   // handle testsuite specific attributes
@@ -94,11 +101,11 @@ function setMetaData(rawElement, test_element) {
  * @param {TestCase} test_element
  */
 function setAttachments(rawCase, test_element) {
-  if (rawCase['system.out']) {
-    const systemOut = rawCase['system.out'];
+  if (rawCase["system.out"]) {
+    const systemOut = rawCase["system.out"];
 
     // junit attachments plug syntax is [[ATTACHMENT|/absolute/path/to/file.png]]
-    const regex = new RegExp('\\[\\[ATTACHMENT\\|([^\\]]+)\\]\\]', 'g');
+    const regex = new RegExp("\\[\\[ATTACHMENT\\|([^\\]]+)\\]\\]", "g");
 
     while ((m = regex.exec(systemOut)) !== null) {
       // avoid infinite loops with zero-width matches
@@ -127,7 +134,7 @@ function setAggregateResults(result) {
     let failed = 0;
     let errors = 0;
     let skipped = 0;
-    result.suites.forEach(_suite => {
+    result.suites.forEach((_suite) => {
       total = _suite.total + total;
       passed = _suite.passed + passed;
       failed = _suite.failed + failed;
@@ -142,7 +149,7 @@ function setAggregateResults(result) {
   }
   if (Number.isNaN(result.duration)) {
     let duration = 0;
-    result.suites.forEach(_suite => {
+    result.suites.forEach((_suite) => {
       duration = _suite.duration + duration;
     });
     result.duration = duration;
@@ -157,8 +164,10 @@ function setAggregateResults(result) {
  */
 function getTestResult(json, options) {
   const result = new TestResult();
-  const rawResult = json["testsuites"] ? json["testsuites"][0] : json["testsuite"];
-  result.name = rawResult["@_name"] || '';
+  const rawResult = json["testsuites"]
+    ? json["testsuites"][0]
+    : json["testsuite"];
+  result.name = rawResult["@_name"] || "";
   result.total = rawResult["@_tests"];
   result.failed = rawResult["@_failures"];
   const errors = rawResult["@_errors"];
@@ -177,7 +186,7 @@ function getTestResult(json, options) {
     const rawSuites = rawResult["testsuite"];
     // Don't filter if there are no testsuite objects
     if (!(typeof rawSuites === "undefined")) {
-      const filteredSuites = rawSuites.filter(suite => suite.testcase);
+      const filteredSuites = rawSuites.filter((suite) => suite.testcase);
       for (let i = 0; i < filteredSuites.length; i++) {
         result.suites.push(getTestSuite(filteredSuites[i], options));
       }
@@ -188,7 +197,7 @@ function getTestResult(json, options) {
   }
 
   setAggregateResults(result);
-  result.status = result.total === result.passed ? 'PASS' : 'FAIL';
+  result.status = result.total === result.passed ? "PASS" : "FAIL";
   return result;
 }
 
@@ -201,6 +210,11 @@ function getTestResult(json, options) {
 function parse(file, options) {
   const json = getJsonFromXMLFile(file);
   return getTestResult(json, options);
+}
+
+function parseString(content) {
+  const json = getJsonFromXML(content);
+  return getTestResult(json);
 }
 
 /**
@@ -216,5 +230,6 @@ async function parseFromUrl(url, options) {
 
 module.exports = {
   parse,
-  parseFromUrl
-}
+  parseString,
+  parseFromUrl,
+};

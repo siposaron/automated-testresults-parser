@@ -1,7 +1,11 @@
-const parser = require('./parsers');
+const parser = require("./parsers");
 
 function parse(options) {
   return parser.parse(options);
+}
+
+function parseString(options) {
+  return parser.parseString(options);
 }
 
 async function parseFromUrl(options) {
@@ -10,5 +14,6 @@ async function parseFromUrl(options) {
 
 module.exports = {
   parse,
-  parseFromUrl
-}
+  parseString,
+  parseFromUrl,
+};

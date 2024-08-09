@@ -1,11 +1,15 @@
 /*
-*  Parser for both Mocha Json report and Mochawesome json
-*/
-const { resolveFilePath, getJsonFromRemoteXMLFile } = require('../helpers/helper');
+ *  Parser for both Mocha Json report and Mochawesome json
+ */
+const {
+  getJsonFromXML,
+  resolveFilePath,
+  getJsonFromRemoteXMLFile,
+} = require("../helpers/helper");
 
-const TestResult = require('../models/TestResult');
-const TestSuite = require('../models/TestSuite');
-const TestCase = require('../models/TestCase');
+const TestResult = require("../models/TestResult");
+const TestSuite = require("../models/TestSuite");
+const TestCase = require("../models/TestCase");
 
 function getTestCase(rawCase) {
   const test_case = new TestCase();
@@ -13,14 +17,12 @@ function getTestCase(rawCase) {
   test_case.duration = rawCase["duration"];
   setMetaData(test_case);
   if (rawCase["state"] == "pending") {
-    test_case.status = 'SKIP';
-  }
-  else if (rawCase.state && rawCase.state === "failed") {
-    test_case.status = 'FAIL';
+    test_case.status = "SKIP";
+  } else if (rawCase.state && rawCase.state === "failed") {
+    test_case.status = "FAIL";
     test_case.setFailure(rawCase.err["message"]);
-  }
-  else {
-    test_case.status = 'PASS';
+  } else {
+    test_case.status = "PASS";
   }
   return test_case;
 }
@@ -34,7 +36,7 @@ function getTestSuite(rawSuite) {
   suite.failed = rawSuite["failures"].length;
   suite.duration = rawSuite["duration"];
   suite.skipped = rawSuite["pending"].length;
-  suite.status = suite.total === (suite.passed + suite.skipped) ? 'PASS' : 'FAIL';
+  suite.status = suite.total === suite.passed + suite.skipped ? "PASS" : "FAIL";
   setMetaData(suite);
   const raw_test_cases = rawSuite.tests;
   if (raw_test_cases) {
@@ -47,7 +49,7 @@ function getTestSuite(rawSuite) {
 
 /**
  * Function to format the mocha raw json report
- * @param {import("./mocha.result").MochaJsonData} raw_json 
+ * @param {import("./mocha.result").MochaJsonData} raw_json
  */
 function getTestResult(raw_json) {
   const result = new TestResult();
@@ -76,40 +78,51 @@ function getTestResult(raw_json) {
       result.suites.push(getTestSuite(suites[i]));
     }
   }
-  result.status = (result.total - result.skipped) === result.passed ? 'PASS' : 'FAIL';
+  result.status =
+    result.total - result.skipped === result.passed ? "PASS" : "FAIL";
   return result;
 }
 
 /**
  * Function to format the mocha raw json report
- * @param {import("./mocha.result").MochaJsonData} raw_json 
+ * @param {import("./mocha.result").MochaJsonData} raw_json
  * @returns formatted json object
  */
 function formatMochaJsonReport(raw_json) {
-  if (raw_json.hasOwnProperty('meta')) {
-    return raw_json
+  if (raw_json.hasOwnProperty("meta")) {
+    return raw_json;
   }
   const formattedJson = { stats: raw_json.stats, results: [] };
   const suites = [];
-  raw_json.failures.forEach(test => test.state = "failed");
-  raw_json.passes.forEach(test => test.state = "passed");
-  raw_json.pending.forEach(test => {
+  raw_json.failures.forEach((test) => (test.state = "failed"));
+  raw_json.passes.forEach((test) => (test.state = "passed"));
+  raw_json.pending.forEach((test) => {
     test.state = "pending";
     test.duration = 0;
   });
 
-  const rawTests = [...raw_json.passes, ...raw_json.failures, ...raw_json.pending];
-  const testSuites = [...new Set(rawTests.map(test => test.fullTitle.split(' ' + test.title)[0]))];
+  const rawTests = [
+    ...raw_json.passes,
+    ...raw_json.failures,
+    ...raw_json.pending,
+  ];
+  const testSuites = [
+    ...new Set(
+      rawTests.map((test) => test.fullTitle.split(" " + test.title)[0])
+    ),
+  ];
 
   for (const testSuite of testSuites) {
     const suite = {
       title: testSuite,
-      tests: rawTests.filter(test => test.fullTitle.startsWith(testSuite))
-    }
-    suite.passes = suite.tests.filter(test => test.state === "passed");
-    suite.failures = suite.tests.filter(test => test.state === "failed");
-    suite.pending = suite.tests.filter(test => test.state === "pending");
-    suite.duration = suite.tests.map(test => test.duration).reduce((total, currVal) => total + currVal, 0);
+      tests: rawTests.filter((test) => test.fullTitle.startsWith(testSuite)),
+    };
+    suite.passes = suite.tests.filter((test) => test.state === "passed");
+    suite.failures = suite.tests.filter((test) => test.state === "failed");
+    suite.pending = suite.tests.filter((test) => test.state === "pending");
+    suite.duration = suite.tests
+      .map((test) => test.duration)
+      .reduce((total, currVal) => total + currVal, 0);
     suite.fullFile = suite.tests[0].file || "";
     suites.push(suite);
   }
@@ -118,8 +131,8 @@ function formatMochaJsonReport(raw_json) {
 }
 
 /**
- * 
- * @param {import("./mocha.result").MochaSuite} suite 
+ *
+ * @param {import("./mocha.result").MochaSuite} suite
  */
 function flattenTestSuite(suite) {
   if (!suite.suites) {
@@ -137,8 +150,8 @@ function flattenTestSuite(suite) {
 }
 
 /**
- * 
- * @param {TestCase | TestSuite} test_element 
+ *
+ * @param {TestCase | TestSuite} test_element
  */
 function setMetaData(test_element) {
   const regexp = /([\@\#][^\s]*)/gm; // match @tag or #tag
@@ -161,9 +174,13 @@ function setMetaData(test_element) {
   }
 }
 
-
 function parse(file) {
   const json = require(resolveFilePath(file));
+  return getTestResult(json);
+}
+
+function parseString(content) {
+  const json = getJsonFromXML(content);
   return getTestResult(json);
 }
 
@@ -180,5 +197,6 @@ async function parseFromUrl(url, options) {
 
 module.exports = {
   parse,
-  parseFromUrl
-}
+  parseString,
+  parseFromUrl,
+};

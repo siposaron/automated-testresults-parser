@@ -1,12 +1,15 @@
-const testng = require('./testng');
-const junit = require('./junit');
-const nunit = require('./nunit');
-const mstest = require('./mstest');
-const xunit = require('./xunit');
-const mocha = require('./mocha');
-const cucumber = require('./cucumber');
-const TestResult = require('../models/TestResult');
-const { getMatchingFilePaths, getJsonFromRemoteXMLFile } = require('../helpers/helper');
+const testng = require("./testng");
+const junit = require("./junit");
+const nunit = require("./nunit");
+const mstest = require("./mstest");
+const xunit = require("./xunit");
+const mocha = require("./mocha");
+const cucumber = require("./cucumber");
+const TestResult = require("../models/TestResult");
+const {
+  getMatchingFilePaths,
+  getJsonFromRemoteXMLFile,
+} = require("../helpers/helper");
 
 /**
  * @param {import('../models/TestResult')[]} results
@@ -27,25 +30,27 @@ function merge(results) {
     main_result.duration = main_result.duration + current_result.duration;
     main_result.suites = main_result.suites.concat(...current_result.suites);
   }
-  main_result.status = results.every(_result => _result.status === 'PASS') ? 'PASS' : 'FAIL';
+  main_result.status = results.every((_result) => _result.status === "PASS")
+    ? "PASS"
+    : "FAIL";
   return main_result;
 }
 
 function getParser(type) {
   switch (type) {
-    case 'testng':
+    case "testng":
       return testng;
-    case 'junit':
+    case "junit":
       return junit;
-    case 'xunit':
+    case "xunit":
       return xunit;
-    case 'nunit':
+    case "nunit":
       return nunit;
-    case 'mstest':
+    case "mstest":
       return mstest;
-    case 'mocha':
+    case "mocha":
       return mocha;
-    case 'cucumber':
+    case "cucumber":
       return cucumber;
     default:
       throw `UnSupported Result Type - ${options.type}`;
@@ -68,10 +73,20 @@ function parse(options) {
   return merge(results);
 }
 
+/**
+ * @param {import('../index').ParseStringOptions} options
+ */
+async function parseString(options) {
+  const parser = getParser(options.type);
+  return parser.parseString(options.content);
+}
+
 async function parseFromUrl(options) {
   const parser = getParser(options.type);
 
-  const jsonPromises = options.urls.map(url => parser.parseFromUrl(url, options));
+  const jsonPromises = options.urls.map((url) =>
+    parser.parseFromUrl(url, options)
+  );
   const testResults = await Promise.all(jsonPromises);
 
   return merge(testResults);
@@ -79,5 +94,6 @@ async function parseFromUrl(options) {
 
 module.exports = {
   parse,
-  parseFromUrl
-}
+  parseString,
+  parseFromUrl,
+};
